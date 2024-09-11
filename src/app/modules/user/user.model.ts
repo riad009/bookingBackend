@@ -1,56 +1,29 @@
-import bcrypt from 'bcrypt';
-import { Schema, model } from 'mongoose';
-import config from '../../config';
-import { TUser } from './user.interface';
-const userSchema = new Schema<TUser>(
-  {
-    id: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    needsPasswordChange: {
-      type: Boolean,
-      default: true,
-    },
-    role: {
-      type: String,
-      enum: ['student', 'faculty', 'admin'],
-    },
-    status: {
-      type: String,
-      enum: ['in-progress', 'blocked'],
-      default: 'in-progress',
-    },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
+import { Schema, model, Model } from 'mongoose';
 
-userSchema.pre('save', async function (next) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // doc
-  // hashing password and save into DB
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds),
-  );
-  next();
+// Define the TUser type
+export type TUser = {
+  name: string; // The name of the user
+  email: string; // The contact email address
+  password: string; // The account password (must be hashed)
+  phone: string; // The contact phone number
+  role: 'admin' | 'user'; // The role of the user
+  address: string; // The physical address
+};
+
+// Define the schema for the User model
+const userSchema = new Schema<TUser>({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  phone: { type: String, required: true },
+  role: { type: String, enum: ['admin', 'user'], required: true },
+  address: { type: String, required: true }
 });
 
-// set '' after saving password
-userSchema.post('save', function (doc, next) {
-  doc.password = '';
-  next();
-});
+// Define the UserModel interface
+export interface UserModel extends Model<TUser> {
+  // You can add custom methods or static methods here if needed
+}
 
-export const User = model<TUser>('User', userSchema);
+// Create and export the User model
+export const User = model<TUser, UserModel>('Student', userSchema);
