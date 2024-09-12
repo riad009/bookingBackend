@@ -13,11 +13,25 @@ const createFacility: RequestHandler = catchAsync(async (req, res) => {
     console.log('studentData',studentData)
     const result = await FacilityService.createFacilityInDB(studentData);
    
+    // sendResponse(res, {
+    //   statusCode: httpStatus.CREATED,
+    //   success: true,
+    //   message: 'Facility is created successfully',
+    //   data: result,
+    // });
     sendResponse(res, {
-      statusCode: httpStatus.CREATED,
+      statusCode: 200, // Include statusCode in the response
       success: true,
-      message: 'Facility is created successfully',
-      data: result,
+      message: 'User logged in successfully',
+      // token: "JWT_TOKEN",
+      data: {
+        _id: result._id,
+        name: result.name,
+        email: result.description,
+        role: result.pricePerHour,
+        phone: result.location,
+        address: result.isDeleted,
+      },
     });
   });
 
@@ -32,7 +46,23 @@ const createFacility: RequestHandler = catchAsync(async (req, res) => {
     });
   });
 
+  const deleteFacility = catchAsync(async (req, res) => {
+    const { id } = req.params;
+
+   
+    const result = await FacilityService.deleteFacilityFromDB(id);
+  
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Facility deleted successfull',
+      data: result,
+    });
+  });
+  
+
 export const facilityController = {
     createFacility,
     getFacility,
+    deleteFacility,
 };
